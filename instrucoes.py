@@ -4,7 +4,6 @@ class Instrucoes:
         self.registrador_destino = registrador_destino
         self.input_1 = input_1
         self.input_2 = input_2
-        self.estagio = 0
         self.pc_counter=pc_counter
 
 
@@ -22,7 +21,6 @@ class Core_HazardControl:
         
 
     def branchIsNotTaken(self, i):
-        print(f"{self.pipeline[i].registrador_destino[1]} e {self.pipeline[i].input_1[1]}")
         if self.pipeline[i].registrador_destino[1] == self.pipeline[i].input_1[1]:
             self.isBranchTaken = 1
             self.pipeline[0] = "FLUSH" 
@@ -53,7 +51,6 @@ class Core_HazardControl:
             self.pipeline[i-1].input_2[1] = self.pipeline[i].registrador_destino[1]
         elif dependencia == 2:
             self.pipeline[i-1].registrador_destino[1] = self.pipeline[i].registrador_destino[1]
-            print(self.pipeline[i].registrador_destino[1])
         
 
 
@@ -66,10 +63,8 @@ class Core_HazardControl:
                 if self.pc_counter_global < len(memoria_de_instrucoes):
                     self.pipeline[0] = memoria_de_instrucoes[self.pc_counter_global]
                     self.pc_counter_global+=1
-                    self.printEstagioAtual()
                     self.dataHazardControl()
                 else:
-                    self.printEstagioAtual()
                     self.dataHazardControl()
                 for i in self.pipeline:
                     if i != None:
@@ -96,24 +91,22 @@ class Core_HazardControl:
                 elif self.pipeline[i-1].tipo == "beq" and self.pipeline[i].registrador_destino[0] == self.pipeline[i].registrador_destino[0]:
                     self.execution(i, 2) 
 
-            self.incrementa_estagio(i)
+           # self.incrementa_estagio(i)
+        self.printEstagioAtual()
+        self.incrementa_estagio()
 
-
-    def incrementa_estagio(self, i):
-        if self.pipeline[i] != None and i+1 < 5:
-            self.pipeline[i+1] = self.pipeline[i]
-            self.pipeline[i] = None
-                    
-        elif self.pipeline[i] != None and i+1 == 5:
-            self.pipeline[i] = None
-    
-
+    def incrementa_estagio(self):
+        for i in range (len(self.pipeline)-1, -1, -1):
+            if self.pipeline[i] != None and i+1 < 5:
+                self.pipeline[i+1] = self.pipeline[i]
+                self.pipeline[i] = None
+                        
+            elif self.pipeline[i] != None and i+1 == 5:
+                self.pipeline[i] = None
 
 
     def printEstagioAtual(self):
-        print("------------------------------------")
-        print(f"Ciclo número {self.ciclo_counter}")
-        print("------------------------------------")
+
         for i in range(0, len(self.pipeline), 1):
             if self.pipeline[i] != None:
                 if self.pipeline[i] == "FLUSH":
@@ -138,6 +131,7 @@ class Core_HazardControl:
                         print(f"A instrução {self.pipeline[i].tipo} está no estágio MEMORY.")
                     elif i == 4:
                         print(f"A instrução {self.pipeline[i].tipo} está no estágio WRITE-BACK.")
+        print("---------------------------------------")
         print("")
         
 
