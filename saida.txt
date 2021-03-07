@@ -1,0 +1,100 @@
+------------------------------------
+Ciclo número 1
+------------------------------------
+A instrução add está no estágio FETCH.
+
+------------------------------------
+Ciclo número 2
+------------------------------------
+A instrução add está no estágio FETCH.
+A instrução add está no estágio DECODE.
+
+------------------------------------
+Ciclo número 3
+------------------------------------
+A instrução sub está no estágio FETCH.
+A instrução add está no estágio DECODE.
+A instrução add está no estágio EXECUTE.
+
+------------------------------------
+Ciclo número 4
+------------------------------------
+A instrução beq está no estágio FETCH.
+A instrução sub está no estágio DECODE.
+A instrução add está no estágio EXECUTE.
+A instrução add está no estágio MEMORY.
+
+------------------------------------
+Ciclo número 5
+------------------------------------
+A instrução mult está no estágio FETCH.
+A instrução beq está no estágio DECODE.
+A instrução sub está no estágio EXECUTE.
+A instrução add está no estágio MEMORY.
+A instrução add está no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 6
+------------------------------------
+A instrução add está no estágio FETCH.
+A instrução mult está no estágio DECODE.
+A instrução beq está no estágio EXECUTE.
+A instrução sub está no estágio MEMORY.
+A instrução add está no estágio WRITE-BACK.
+
+FALHA CRITICA! O BRANCH FOI TOMADO
+------------------------------------
+Ciclo número 7
+------------------------------------
+A instrução add está no estágio FETCH.
+Stall no estágio DECODE.
+Stall no estágio EXECUTE.
+A instrução beq está no estágio MEMORY.
+A instrução sub está no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 8
+------------------------------------
+A instrução sub está no estágio FETCH.
+A instrução add está no estágio DECODE.
+Stall no estágio EXECUTE.
+Stall no estágio MEMORY.
+A instrução beq está no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 9
+------------------------------------
+A instrução sub está no estágio FETCH.
+A instrução sub está no estágio DECODE.
+A instrução add está no estágio EXECUTE.
+Stall no estágio MEMORY.
+Stall no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 10
+------------------------------------
+A instrução sub está no estágio DECODE.
+A instrução sub está no estágio EXECUTE.
+A instrução add está no estágio MEMORY.
+Stall no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 11
+------------------------------------
+A instrução sub está no estágio EXECUTE.
+A instrução sub está no estágio MEMORY.
+A instrução add está no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 12
+------------------------------------
+A instrução sub está no estágio MEMORY.
+A instrução sub está no estágio WRITE-BACK.
+
+------------------------------------
+Ciclo número 13
+------------------------------------
+A instrução sub está no estágio WRITE-BACK.
+
+Execução finalizada com sucesso.
+Tempo de execução de 2600ps
