@@ -17,6 +17,7 @@ class Core_HazardControl:
         self.ciclo_counter = 0
         self.pipelineIsNotEmpty = 1
         self.pc_counter_global = 0
+        self.is_stall_cicle = -1
 
         
 
@@ -54,15 +55,26 @@ class Core_HazardControl:
         
 
 
+    def bypass_memory(self, i):
+        print("DEPENDENCIA DETECTADA!")
+        print(f"BYPASS DO RESULTADO DO REGISTRADOR {self.pipeline[i].registrador_destino[0]} DA INSTRUÇÃO {self.pipeline[i].tipo} PARA A ORIGEM DA PROXIMA INSTRUÇÃO A SER EXECUTADA {self.pipeline[i-1].tipo}")
+        self.pipeline[4] = self.pipeline[3]
+        self.pipeline[3] = self.pipeline[2]
+        self.pipeline[2] = "STALL"
+
+
 
     #Coloca a primeira instrução no "IF" do pipeline
     def init_datapath(self, memoria_de_instrucoes):
-        try:
+        #try:
             while self.pipelineIsNotEmpty != 0:
                 self.ciclo_counter += 1
                 if self.pc_counter_global < len(memoria_de_instrucoes):
-                    self.pipeline[0] = memoria_de_instrucoes[self.pc_counter_global]
-                    self.pc_counter_global+=1
+                    if (self.is_stall_cicle == -1):
+                        self.pipeline[0] = memoria_de_instrucoes[self.pc_counter_global]
+                        self.pc_counter_global+=1
+                    else: 
+                        self.is_stall_cicle = -1
                     self.dataHazardControl()
                 else:
                     self.dataHazardControl()
@@ -73,27 +85,35 @@ class Core_HazardControl:
                     else:
                         self.pipelineIsNotEmpty = 0
             return 1
-        except:
-            return 2
+        #except:
+        #    return 2
 
 
         
         
     def dataHazardControl(self):
         for i in range (len(self.pipeline)-1, -1, -1):
-            if i == 2 and self.pipeline[i] != None and self.pipeline[i] != "FLUSH" and self.pipeline[i].tipo == "beq":
+            # Branch harzard control
+            if i == 2 and self.pipeline[i] != None and self.pipeline[i] != "FLUSH" and self.pipeline[i] != "STALL" and self.pipeline[i].tipo == "beq":
                 self.branchIsNotTaken(i)
-            elif i == 2 and self.pipeline[i] != None and self.pipeline[i-1] != None and self.pipeline[i] != "FLUSH" and self.pipeline[i].tipo != "beq":    
+            # Data dependenci control
+            elif i == 2 and self.pipeline[i] != None and self.pipeline[i-1] != None and self.pipeline[i] != "FLUSH" and self.pipeline[i] != "STALL" and self.pipeline[i].tipo != "beq" and self.pipeline[i].tipo != "lw":    
                 if self.pipeline[i].registrador_destino[0] == self.pipeline[i-1].input_1[0]:
                     self.execution(i, 0)
                 elif self.pipeline[i-1].tipo != "beq" and self.pipeline[i].registrador_destino[0] == self.pipeline[i-1].input_2[0]:
                     self.execution(i, 1)
                 elif self.pipeline[i-1].tipo == "beq" and self.pipeline[i].registrador_destino[0] == self.pipeline[i].registrador_destino[0]:
                     self.execution(i, 2) 
+            elif i == 2 and self.pipeline[i] != None and self.pipeline[i-1] != None and self.pipeline[i] != "FLUSH" and self.pipeline[i] != "STALL" and self.pipeline[i].tipo == "lw":
+                if (self.pipeline[i].registrador_destino[0] == self.pipeline[i-1].input_1[0]) or (self.pipeline[i-1].tipo != "beq" and self.pipeline[i-1].tipo != "lw" and self.pipeline[i].registrador_destino[0] == self.pipeline[i-1].input_2[0]):
+                    self.is_stall_cicle = 2
+                    self.bypass_memory(i)
+                pass
 
-           # self.incrementa_estagio(i)
+
         self.printEstagioAtual()
-        self.incrementa_estagio()
+        if self.is_stall_cicle == -1:
+            self.incrementa_estagio()
 
     def incrementa_estagio(self):
         for i in range (len(self.pipeline)-1, -1, -1):
@@ -109,17 +129,19 @@ class Core_HazardControl:
 
         for i in range(0, len(self.pipeline), 1):
             if self.pipeline[i] != None:
-                if self.pipeline[i] == "FLUSH":
+                if i == 4 and self.pipeline[i] != "FLUSH" and self.pipeline[i] != "STALL" and self.pipeline[i].tipo == "lw":
+                        print(f"BYPASS DO RESULTADO DO REGISTRADOR {self.pipeline[i].registrador_destino[0]} DA INSTRUÇÃO {self.pipeline[i].tipo} PARA A ORIGEM DA PROXIMA INSTRUÇÃO A SER EXECUTADA {self.pipeline[2].tipo}")
+                if self.pipeline[i] == "FLUSH" or self.pipeline[i] == "STALL":
                     if i == 0:
-                        print(f"FLUSH no estágio FETCH.")
+                        print(f"{self.pipeline[i]} no estágio FETCH.")
                     elif i == 1:
-                        print(f"FLUSH no estágio DECODE.")
+                        print(f"{self.pipeline[i]} no estágio DECODE.")
                     elif i == 2:
-                        print(f"FLUSH no estágio EXECUTE.")
+                        print(f"{self.pipeline[i]} no estágio EXECUTE.")
                     elif i == 3:
-                        print(f"FLUSH no estágio MEMORY.")
+                        print(f"{self.pipeline[i]} no estágio MEMORY.")
                     elif i == 4:
-                        print(f"FLUSH no estágio WRITE-BACK.")
+                        print(f"{self.pipeline[i]} no estágio WRITE-BACK.")
                 else: 
                     if i == 0:
                         print(f"A instrução {self.pipeline[i].tipo} está no estágio FETCH.")
